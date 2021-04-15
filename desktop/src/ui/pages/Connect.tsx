@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { IoLockClosed } from "react-icons/io5";
 import { useDispatch, useSelector } from 'react-redux';
-import { setToken } from '../../features/auth/authSlice';
+import { useHistory } from 'react-router-dom';
+import { setIdle, setLoading, setToken } from '../../features/auth/authSlice';
 import { HttpState, selectHttp, setServer } from '../../features/http/httpSlice';
 import makeAxios from '../../helper/makeAxios';
 
 const Connect = () => {
   const dispatch = useDispatch();
+  const history = useHistory();
   const httpState: HttpState = useSelector(selectHttp);
   const Axios = makeAxios();
 
@@ -25,13 +27,15 @@ const Connect = () => {
   }
 
   const handleSumbmit = async () => {
-    const request = Axios.post('/sanctum/token',
+    const request = Axios.post('/api/sanctum/token',
       { email: form.email, password: form.password, device_name: 'test' },
     );
+    dispatch(setLoading());
     try {
       const response = await request;
       dispatch(setToken({ token: String(response.data) }));
-      console.log({ response });
+      dispatch(setIdle());
+      history.replace('user');
     } catch (error) {
       console.log(error);;
     }
@@ -50,10 +54,12 @@ const Connect = () => {
           <h1 className={"mt-4 font-mono text-gray-800"}>Server Config:</h1>
           <input value={httpState.server} name={"server"} onChange={handleForm} className={"h-12 mt-4 text-center border outline-none"} type="text" placeholder={"server"} />
           <button onClick={handleSumbmit} className={"self-center w-4/12 h-10 mt-4 text-center text-white bg-green-600 shadow-sm outline-none"}>Login</button>
+          <button onClick={() => history.push('user')} className={"self-center w-4/12 h-10 mt-4 text-center text-white bg-green-600 shadow-sm outline-none"}>Go To User</button>
         </div>
       </div>
-    </div>
+    </div >
   )
 }
 
 export default Connect
+

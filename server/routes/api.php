@@ -22,5 +22,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::post('/sanctum/token', [AuthController::class,'issue_token']);
 
 Route::middleware('auth:sanctum')->get('/test_token', function (Request $request) {
-    return $request->user();
+    return auth()->user()->permissions();
 });
